@@ -2,6 +2,7 @@ from django.conf import settings
 from django.core.mail import send_mail
 from django.template.loader import render_to_string
 from django.utils.translation import ugettext
+from html2text import html2text
 
 from .base import BaseBackend
 
@@ -38,5 +39,6 @@ class EmailBackend(BaseBackend):
 
         context['message'] = messages["full.txt"]
         body = render_to_string(self.body_template, context)
-
-        send_mail(subject, body, settings.DEFAULT_FROM_EMAIL, [recipient.email])
+        send_mail(
+            subject, html2text(body), settings.DEFAULT_FROM_EMAIL, [recipient.email],
+            fail_silently=False, html_message=body)

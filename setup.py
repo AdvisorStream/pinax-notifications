@@ -16,7 +16,7 @@ setup(
     description="User notification management for the Django web framework",
     name="pinax-notifications",
     long_description=read("README.rst"),
-    version="3.0.7",
+    version="3.0.8",
     url="http://pinax-notifications.rtfd.org/",
     license="MIT",
     packages=find_packages(),
@@ -24,7 +24,8 @@ setup(
         "notifications": []
     },
     install_requires=[
-        "django-appconf>=1.0.1"
+        "django-appconf>=1.0.1",
+        "html2text==2016.4.2"
     ],
     test_suite="runtests.runtests",
     tests_require=[
