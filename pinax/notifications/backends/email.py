@@ -33,7 +33,7 @@ class EmailBackend(BaseBackend):
 
         messages = self.get_formatted_messages((
             "short.txt",
-            "full.txt"
+            "full.html"
         ), notice_type.label, context)
 
         context['message'] = messages["short.txt"]
