@@ -36,7 +36,6 @@ class BaseBackend(object):
         """
         format_templates = {}
         for fmt in formats:
-            # conditionally turn off autoescaping for .txt extensions in format
             format_templates[fmt] = render_to_string(
                 ["pinax/notifications/{0}/{1}".format(label, fmt),
                  "pinax/notifications/{0}".format(fmt)],

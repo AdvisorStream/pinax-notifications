@@ -9,7 +9,7 @@ from .base import BaseBackend
 
 class EmailBackend(BaseBackend):
     subject_template = 'pinax/notifications/email_subject.txt'
-    body_template = 'pinax/notifications/email_body.txt'
+    body_template = 'pinax/notifications/email_body.html'
     spam_sensitivity = 2
 
     def can_send(self, user, notice_type, scoping):
@@ -41,7 +41,7 @@ class EmailBackend(BaseBackend):
             render_to_string(self.subject_template, context) \
                 .splitlines())
 
-        context['message'] = messages["full.txt"]
+        context['message'] = messages["full.html"]
         body = render_to_string(self.body_template, context)
         send_mail(
             subject, html2text(body), settings.DEFAULT_FROM_EMAIL, [recipient.email],
