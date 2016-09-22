@@ -45,10 +45,9 @@
                               </span>
             </td>
             {% for cell in row.cells %}
-            <td>
-              <input type="checkbox" name="{{ cell.0 }}" {% if cell.1 %}checked="yes" {% endif
-                     %}/>
-            </td>
+              <td>
+                <input type="checkbox" name="{{ cell.0 }}" {% if cell.1 %}checked="yes"{% endif %} />
+              </td>
             {% endfor %}
           </tr>
         {% endfor %}
@@ -62,8 +61,10 @@
 
     </table>
 
-    <div class="form-actions">
-      <button type="submit" class="btn btn-primary pull-right">{% trans "Change" %}</button>
-    </div>
+    {% if notice_settings.rows %}
+      <div class="form-actions">
+        <button type="submit" class="btn btn-primary pull-right">{% trans "Change" %}</button>
+      </div>
+    {% endif %}
   </form>
 {% endblock %}
