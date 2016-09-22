@@ -18,14 +18,18 @@ class EmailBackend(BaseBackend):
             return True
         return False
 
-    def deliver(self, recipient, sender, notice_type, extra_context):
-        context = self.default_context()
+    def get_context(self, recipient, sender, notice_type, extra_context):
+        context = super().get_context()
         context.update({
             "recipient": recipient,
             "sender": sender,
             "notice": ugettext(notice_type.display),
         })
         context.update(extra_context)
+        return context
+
+    def deliver(self, recipient, sender, notice_type, extra_context):
+        context = self.get_context(recipient, sender, notice_type, extra_context)
 
         messages = self.get_formatted_messages((
             "short.txt",

@@ -43,7 +43,7 @@ class BaseBackend(object):
                 context)
         return format_templates
 
-    def default_context(self):
+    def get_context(self, *args, **kwargs):
         use_ssl = getattr(settings, "PINAX_USE_SSL", False)
         default_http_protocol = "https" if use_ssl else "http"
         current_site = Site.objects.get_current()
