@@ -1,4 +1,3 @@
-from django.template import Context
 from django.template.loader import render_to_string
 
 from django.contrib.sites.models import Site
@@ -38,11 +37,10 @@ class BaseBackend(object):
         format_templates = {}
         for fmt in formats:
             # conditionally turn off autoescaping for .txt extensions in format
-            if fmt.endswith(".txt"):
-                context.autoescape = False
-            format_templates[fmt] = render_to_string((
-                "pinax/notifications/{0}/{1}".format(label, fmt),
-                "pinax/notifications/{0}".format(fmt)), context)
+            format_templates[fmt] = render_to_string(
+                ["pinax/notifications/{0}/{1}".format(label, fmt),
+                 "pinax/notifications/{0}".format(fmt)],
+                context)
         return format_templates
 
     def default_context(self):
@@ -50,8 +48,8 @@ class BaseBackend(object):
         default_http_protocol = "https" if use_ssl else "http"
         current_site = Site.objects.get_current()
         base_url = "{0}://{1}".format(default_http_protocol, current_site.domain)
-        return Context({
+        return {
             "default_http_protocol": default_http_protocol,
             "current_site": current_site,
             "base_url": base_url
-        })
+        }
