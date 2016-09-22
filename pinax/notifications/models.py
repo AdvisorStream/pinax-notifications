@@ -148,7 +148,10 @@ def send_now(users, label, extra_context=None, sender=None, scoping=None):
     if extra_context is None:
         extra_context = {}
 
-    notice_type = NoticeType.objects.get(label=label)
+    try:
+        notice_type = NoticeType.objects.get(label=label)
+    except NoticeType.DoesNotExist:
+        return sent
 
     current_language = get_language()
 
