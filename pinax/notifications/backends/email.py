@@ -16,8 +16,6 @@ class EmailBackend(BaseBackend):
         return False
 
     def deliver(self, recipient, sender, notice_type, extra_context):
-        # TODO: require this to be passed in extra_context
-
         context = self.default_context()
         context.update({
             "recipient": recipient,

@@ -21,7 +21,8 @@ class BaseBackend(object):
         Determines whether this backend is allowed to send a notification to
         the given user and notice_type.
         """
-        return notice_setting_for_user(user, notice_type, self.medium_id, scoping).send
+        setting = notice_setting_for_user(user, notice_type, self.medium_id, scoping)
+        return setting and setting.send
 
     def deliver(self, recipient, sender, notice_type, extra_context):
         """

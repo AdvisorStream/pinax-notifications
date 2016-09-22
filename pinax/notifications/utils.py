@@ -19,6 +19,9 @@ def notice_setting_for_user(user, notice_type, medium, scoping=None):
     """
     @@@ candidate for overriding via a hookset method so you can customize lookup at site level
     """
+    if notice_type.permission and not user.has_perm(notice_type.permission):
+        return None
+
     kwargs = {
         "notice_type": notice_type,
         "medium": medium

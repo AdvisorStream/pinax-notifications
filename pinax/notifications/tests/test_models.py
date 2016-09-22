@@ -6,12 +6,16 @@ from django.test import TestCase
 from django.test.utils import override_settings
 
 from django.contrib.auth import get_user_model
+from django.contrib.auth.models import User
 from django.contrib.sites.models import Site
+from django.contrib.auth.models import Permission
+from django.contrib.contenttypes.models import ContentType
 
 from ..conf import settings
 from ..models import NoticeType, NoticeQueueBatch, NoticeSetting
 from ..models import LanguageStoreNotAvailable
 from ..models import get_notification_language, send_now, send, queue
+from ..utils import notice_setting_for_user
 
 from .models import Language
 
@@ -21,14 +25,29 @@ from . import get_backend_id
 class BaseTest(TestCase):
     def setUp(self):
         self.user = get_user_model().objects.create_user("test_user", "test@user.com", "123456")
+        self.user.is_active = True
+        self.user.save()
         self.user2 = get_user_model().objects.create_user("test_user2", "test2@user.com", "123456")
         NoticeType.create("label", "display", "description")
         self.notice_type = NoticeType.objects.get(label="label")
+
+        ct = ContentType.objects.get_for_model(NoticeType)
+        self.permission = Permission.objects.create(
+            name='label_3', codename='label_3', content_type=ct)
+
+        NoticeType.create(
+            "label_3", "display", "description",
+            permission='.'.join(
+                [self.permission.content_type.app_label, self.permission.codename]))
+
+        self.notice_type_with_permission = NoticeType.objects.get(label="label_3")
 
     def tearDown(self):
         self.user.delete()
         self.user2.delete()
         self.notice_type.delete()
+        self.notice_type_with_permission.delete()
+        self.permission.delete()
 
 
 class TestNoticeType(TestCase):
@@ -66,6 +85,18 @@ class TestNoticeSetting(BaseTest):
         NoticeSetting.for_user(self.user2, self.notice_type, email_id, scoping=None)
         ns2 = NoticeSetting.objects.get(user=self.user2, notice_type=self.notice_type, medium=email_id)
         self.assertTrue(ns2.send)
+
+        # test no setting returned without permission
+        ns3 = notice_setting_for_user(
+            self.user, self.notice_type_with_permission, medium=email_id)
+        self.assertIsNone(ns3)
+
+        # test the setting is returned when user has the permission
+        self.user.user_permissions.add(self.permission)
+        self.user = User.objects.get(username='test_user')
+        ns4 = notice_setting_for_user(
+            self.user, self.notice_type_with_permission, medium=email_id)
+        self.assertEqual(ns4.notice_type, self.notice_type_with_permission)
 
 
 class TestProcedures(BaseTest):

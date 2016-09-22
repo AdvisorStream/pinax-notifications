@@ -31,6 +31,10 @@ class NoticeType(models.Model):
     label = models.CharField(_("label"), max_length=40)
     display = models.CharField(_("display"), max_length=50)
     description = models.CharField(_("description"), max_length=100)
+    permission = models.CharField(
+        max_length=250,
+        help_text='Permission code "app_label.codename" '
+                  'to use for enabling this notice type', blank=True, default='')
 
     # by default only on for media with sensitivity less than or equal to this number
     default = models.IntegerField(_("default"))
@@ -43,7 +47,7 @@ class NoticeType(models.Model):
         verbose_name_plural = _("notice types")
 
     @classmethod
-    def create(cls, label, display, description, default=2, verbosity=1):
+    def create(cls, label, display, description, permission='', default=2, verbosity=1):
         """
         Creates a new NoticeType.
 
@@ -61,12 +65,16 @@ class NoticeType(models.Model):
             if default != notice_type.default:
                 notice_type.default = default
                 updated = True
+            if permission != notice_type.permission:
+                notice_type.permission = permission
+                updated = True
             if updated:
                 notice_type.save()
                 if verbosity > 1:
                     print("Updated %s NoticeType" % label)
         except cls.DoesNotExist:
-            cls(label=label, display=display, description=description, default=default).save()
+            cls(label=label, display=display, description=description,
+                permission=permission, default=default).save()
             if verbosity > 1:
                 print("Created %s NoticeType" % label)
 

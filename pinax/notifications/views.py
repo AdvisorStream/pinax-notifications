@@ -1,6 +1,7 @@
 from django.http import HttpResponseRedirect
 from django.utils.decorators import method_decorator
 from django.views.generic import TemplateView
+from django.utils.functional import cached_property
 
 from .compat import login_required
 from .models import NoticeType, NOTICE_MEDIA
@@ -9,6 +10,11 @@ from .utils import notice_setting_for_user
 
 class NoticeSettingsView(TemplateView):
     template_name = "pinax/notifications/notice_settings.html"
+
+    @cached_property
+    def notice_types(self):
+        return [notice for notice in NoticeType.objects.all()
+                if not notice.permission or self.request.user.has_perm(notice.permission)]
 
     @method_decorator(login_required)
     def dispatch(self, *args, **kwargs):
@@ -37,23 +43,24 @@ class NoticeSettingsView(TemplateView):
         _, pk, medium_id = label.split("-")
         notice_type = NoticeType.objects.get(pk=pk)
         setting = self.setting_for_user(notice_type, medium_id)
-        if val == "on":
-            setting.send = True
-        else:
-            setting.send = False
-        setting.save()
+        if setting:
+            if val == "on":
+                setting.send = True
+            else:
+                setting.send = False
+            setting.save()
 
     def settings_table(self):
-        notice_types = NoticeType.objects.all()
         table = []
-        for notice_type in notice_types:
+        for notice_type in self.notice_types:
             row = []
             for medium_id, medium_display in NOTICE_MEDIA:
                 setting = self.setting_for_user(notice_type, medium_id)
-                row.append((
-                    self.form_label(notice_type, medium_id),
-                    setting.send)
-                )
+                if setting:
+                    row.append((
+                        self.form_label(notice_type, medium_id),
+                        setting.send)
+                    )
             table.append({"notice_type": notice_type, "cells": row})
         return table
 
@@ -74,7 +81,7 @@ class NoticeSettingsView(TemplateView):
         }
         context = super(NoticeSettingsView, self).get_context_data(**kwargs)
         context.update({
-            "notice_types": NoticeType.objects.all(),
+            "notice_types": self.notice_types,
             "notice_settings": settings
         })
         return context
