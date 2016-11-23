@@ -16,7 +16,7 @@ setup(
     description="User notification management for the Django web framework",
     name="pinax-notifications",
     long_description=read("README.rst"),
-    version="3.0.13",
+    version="3.0.14",
     url="http://pinax-notifications.rtfd.org/",
     license="MIT",
     packages=find_packages(),

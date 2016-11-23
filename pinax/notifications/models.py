@@ -85,11 +85,14 @@ class NoticeSetting(models.Model):
     of a given type to a given medium.
     """
 
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, verbose_name=_("user"))
-    notice_type = models.ForeignKey(NoticeType, verbose_name=_("notice type"))
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL, verbose_name=_("user"), on_delete=models.CASCADE)
+    notice_type = models.ForeignKey(
+        NoticeType, verbose_name=_("notice type"), on_delete=models.CASCADE)
     medium = models.CharField(_("medium"), max_length=100, choices=NOTICE_MEDIA)
     send = models.BooleanField(_("send"), default=False)
-    scoping_content_type = models.ForeignKey(ContentType, null=True, blank=True)
+    scoping_content_type = models.ForeignKey(
+        ContentType, null=True, blank=True, on_delete=models.CASCADE)
     scoping_object_id = models.PositiveIntegerField(null=True, blank=True)
     scoping = GenericForeignKey("scoping_content_type", "scoping_object_id")
 
