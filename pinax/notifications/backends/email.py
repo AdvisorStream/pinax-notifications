@@ -28,11 +28,11 @@ class EmailBackend(BaseBackend):
 
     def get_subject(self, label, context):
         return render_to_string(
-            'pinax/notifications/{}/subject.txt'.format(label), context).splitlines()
+            'pinax/notifications/{}/subject.txt'.format(label), context)
 
     def get_body(self, label, context):
         return render_to_string(
-            'pinax/notifications/{}/body.html'.format(label), context).splitlines()
+            'pinax/notifications/{}/body.html'.format(label), context)
 
     def deliver(self, recipient, sender, notice_type, extra_context):
         context = self.get_context(recipient, sender, notice_type, extra_context)
