@@ -8,8 +8,6 @@ from .base import BaseBackend
 
 
 class EmailBackend(BaseBackend):
-    subject_template = 'pinax/notifications/email_subject.txt'
-    body_template = 'pinax/notifications/email_body.html'
     spam_sensitivity = 2
 
     def can_send(self, user, notice_type, scoping):
@@ -28,21 +26,17 @@ class EmailBackend(BaseBackend):
         context.update(extra_context)
         return context
 
+    def get_subject(self, label, context):
+        return render_to_string(
+            'pinax/notifications/{}/subject.txt'.format(label), context).splitlines()
+
+    def get_body(self, label, context):
+        return render_to_string(
+            'pinax/notifications/{}/body.html'.format(label), context).splitlines()
+
     def deliver(self, recipient, sender, notice_type, extra_context):
         context = self.get_context(recipient, sender, notice_type, extra_context)
-
-        messages = self.get_formatted_messages((
-            "short.txt",
-            "full.html"
-        ), notice_type.label, context)
-
-        context['message'] = messages["short.txt"]
-        subject = "".join(
-            render_to_string(self.subject_template, context) \
-                .splitlines())
-
-        context['message'] = messages["full.html"]
-        body = render_to_string(self.body_template, context)
-        send_mail(
-            subject, html2text(body), settings.DEFAULT_FROM_EMAIL, [recipient.email],
-            fail_silently=False, html_message=body)
+        subject = self.get_subject(notice_type.label, context)
+        body = self.get_body(notice_type.label, context)
+        send_mail(subject, html2text(body), settings.DEFAULT_FROM_EMAIL,
+                  [recipient.email], fail_silently=False, html_message=body)
