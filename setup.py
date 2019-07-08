@@ -25,7 +25,7 @@ setup(
     },
     install_requires=[
         "django-appconf>=1.0.1",
-        "html2text==2016.4.2"
+        "html2text>=2016.4.2"
     ],
     test_suite="runtests.runtests",
     tests_require=[
